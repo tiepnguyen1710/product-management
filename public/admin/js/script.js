@@ -48,5 +48,26 @@ if(formSearch){
 }
 
 //end-search
-    
+
+//Pagination
+
+const buttonPagination = document.querySelectorAll("[button-pagination]")
+
+if(buttonPagination.length > 0){
+    let url = new URL(window.location.href)
+
+    buttonPagination.forEach(button => {
+        button.addEventListener("click", () => {
+            page = button.getAttribute("button-pagination");
+            console.log(page)
+            if(page){
+                url.searchParams.set("page", page);
+            }
+
+            window.location.href = url.href;
+        });
+    });
+}
+
+//End-Pagination
 }
