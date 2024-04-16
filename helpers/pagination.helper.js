@@ -8,7 +8,7 @@ module.exports = (query, totalProduct) => {
         objectPagination.currentPage = parseInt(query.page);
     }
 
-    console.log(query.page);
+    //console.log(query.page);
 
     objectPagination.skip = (objectPagination.currentPage - 1) * objectPagination.limitItems;
 
