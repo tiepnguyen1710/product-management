@@ -83,6 +83,7 @@ module.exports.index = async (req, res) => {
     });
 }
 
+// [PATCH] /admin/products/:status/:id
 module.exports.changeStatus = async (req, res) => {
     //console.log(req.params);
     const status = req.params.status;

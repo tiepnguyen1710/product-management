@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const database = require ("./config/database");
 const systemConfig = require("./config/system");
+const methodOverride = require('method-override');
 require("dotenv").config();
 
 database.connect();
@@ -17,6 +18,8 @@ app.set("views", "./views");
 app.set("view engine", "pug");
 
 app.use(express.static("public"));
+
+app.use(methodOverride('_method'));
 
 app.locals.prefixAdmin = systemConfig.prefixAdmin;
 
