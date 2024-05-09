@@ -90,6 +90,87 @@ module.exports.changeStatus = async (req, res) => {
     const id = req.params.id;
 
     await Product.updateOne({_id : id}, {status : status})
+
+    req.flash('success', 'Cập nhật trạng thái thành công!');
     
     res.redirect("back");
 }
+
+module.exports.changeMulti = async (req, res) => {
+    const type = req.body.type;
+    let ids = req.body.ids;
+
+    ids = ids.split(",");
+    switch(type){
+        case "active":
+        case "inactive":
+            await Product.updateMany({
+                _id : {$in : ids}
+            }, {
+                status: type
+            });
+            req.flash('success', 'Cập nhật trạng thái thành công!');
+            break;
+        case "delete-all":
+            await Product.updateMany({
+                _id : {$in : ids}
+            }, {
+                deleted : true
+            });
+            break;
+        case "change-position":
+            for (const item of ids) {
+                let [id, position] = item.split("-");
+                position = parseInt(position);
+                await Product.updateOne({
+                _id: id
+                }, {
+                position: position
+                });
+            }
+            break;
+        default:
+            break;
+    }
+    res.redirect("back");
+}
+
+module.exports.deleteItem = async (req, res) => {
+    const id = req.params.id;
+    
+    await Product.updateOne({ _id : id }, { deleted : true })
+
+    res.redirect("back");
+
+}
+
+// [GET] /admin/products/create
+module.exports.create = async (req, res) => {
+    res.render("admin/pages/products/create", {
+        pageTitle : "Tao moi san pham"
+    });
+}
+
+// [POST] /admin/products/create
+module.exports.createPost = async (req, res) => {
+    req.body.price = parseInt(req.body.price);
+    req.body.discountPercentage = parseInt(req.body.discountPercentage);
+    req.body.stock = parseInt(req.body.stock);
+    if(req.body.position){
+        req.body.position = parseInt(req.body.position);
+    }
+    else{
+        const productCount = await Product.countDocuments();
+        req.body.position = productCount + 1;
+    }
+    if(req.file) {
+        req.body.thumbnail = `/uploads/${req.file.filename}`;
+    }
+    
+    const record = new Product(req.body);
+    await record.save();
+
+    req.flash('success', 'Thêm sản phẩm thành công');
+    res.redirect(`/admin/products`);
+}
+

@@ -71,3 +71,131 @@ if(buttonPagination.length > 0){
 
 //End-Pagination
 }
+
+//Change-multi
+
+const checkBoxMulti = document.querySelector("[checkbox-multi]")
+
+if(checkBoxMulti){
+    const checkAllBut = checkBoxMulti.querySelector("input[name='checkall']")
+    const listCheck = checkBoxMulti.querySelectorAll("input[name='id']");
+    
+    checkAllBut.addEventListener("click", () => {
+        if(checkAllBut.checked){
+            listCheck.forEach(checkBox => {
+                checkBox.checked = true;
+            })
+        }
+        else{
+            listCheck.forEach(checkBox => {
+                checkBox.checked = false;
+            })
+        }
+    });
+
+    listCheck.forEach(checkBox => {
+        checkBox.addEventListener("click", () => {
+           listCheckedLength = checkBoxMulti.querySelectorAll("input[name=id]:checked").length;
+           checkLength = listCheck.length;
+           
+           if(listCheckedLength == checkLength){
+                checkAllBut.checked = true;
+           }
+           else{
+                checkAllBut.checked = false;
+           }
+        });
+    });
+}
+
+//End-change-multi
+
+//Form-changeMulti
+
+const formChangeMulti = document.querySelector("[form-change-multi]");
+if(formChangeMulti){
+    formChangeMulti.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const type = formChangeMulti.querySelector("select[name=type]").value;
+        
+        //
+        Ids = [];
+        listChecked = checkBoxMulti.querySelectorAll("input[name=id]:checked");
+        if(listChecked.length > 0){
+            listChecked.forEach(check => {
+                const id = check.getAttribute("value");
+                if(type == "change-position") {
+                    const position = check.closest("tr").querySelector("input[name='position']").value;
+                    Ids.push(`${id}-${position}`);
+                  } else {
+                    Ids.push(id);
+                  }
+                
+            })
+            IdsString = Ids.join(",");
+            
+            const formControl = formChangeMulti.querySelector("input[name=ids]");
+            if(formControl){
+                formControl.value = IdsString;
+            }
+
+            if (type == "delete-all"){
+                const Isconfirm = confirm("Bạn có chắc chắn xóa những sản phẩm này");
+                if(!Isconfirm){
+                    return;
+                }
+            }
+    
+            formChangeMulti.submit();
+        }
+        else{
+            alert("Vui long chon mot ban ghi");
+        }
+    });
+}
+
+//End-Form-changeMulti
+
+//Delete
+
+const butDel = document.querySelectorAll("[button-delete]");
+if(butDel.length > 0){
+    const formDel = document.querySelector("#form-delete");
+    butDel.forEach(but => {
+        but.addEventListener("click", () => {
+            const Isconfirm = confirm("Bạn có chắc chắn xóa sản phẩm này");
+            if(Isconfirm){
+                const idDel = but.getAttribute("id-del"); 
+                
+                const path = formDel.getAttribute("path");
+                const action = `${path}/${idDel}?_method=DELETE`;
+                console.log(action);
+    
+                formDel.action = action;
+                formDel.submit();
+            }
+        });
+    })
+}
+
+//End-delete
+
+// show-alert
+const showAlert = document.querySelector("[show-alert]");
+if(showAlert) {
+  let time = showAlert.getAttribute("data-time");
+  time = parseInt(time);
+
+  // Sau time giây sẽ đóng thông báo
+  setTimeout(() => {
+    showAlert.classList.add("alert-hidden");
+  }, time);
+
+  // Khi click vào nút close-alert sẽ đóng luôn
+  const closeAlert = showAlert.querySelector("[close-alert]");
+  closeAlert.addEventListener("click", () => {
+    showAlert.classList.add("alert-hidden");
+  });
+}
+// End show-alert
