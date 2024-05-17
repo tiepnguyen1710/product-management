@@ -1,6 +1,8 @@
 const Product = require("../../models/product.model");
 const filterStatusHelper = require("../../helpers/filter-state.helper");
 const paginationHelper = require("../../helpers/pagination.helper")
+const ProductCategory = require("../../models/product-category.model");
+const createTreeHelper = require("../../helpers/createTree.helper");
 
 module.exports.index = async (req, res) => {
     // const filterState = [
@@ -146,8 +148,15 @@ module.exports.deleteItem = async (req, res) => {
 
 // [GET] /admin/products/create
 module.exports.create = async (req, res) => {
+    const category = await ProductCategory.find({
+        deleted: false
+      });
+    
+    const newCategory = createTreeHelper(category);
+
     res.render("admin/pages/products/create", {
-        pageTitle : "Tao moi san pham"
+        pageTitle : "Tao moi san pham",
+        category: newCategory
     });
 }
 
@@ -174,3 +183,58 @@ module.exports.createPost = async (req, res) => {
     res.redirect(`/admin/products`);
 }
 
+// [GET] /admin/products/edit/:id
+module.exports.edit = async (req, res) => {
+    const id = req.params.id;
+    const find = {
+        _id : id,
+        deleted : false
+    }
+
+    const product = await Product.findOne(find);
+    const category = await ProductCategory.find({
+        deleted: false
+      });
+    
+    const newCategory = createTreeHelper(category);
+    res.render("admin/pages/products/edit", {
+        product : product,
+        category: newCategory
+    });
+}
+
+// [PATCH] /admin/products/edit/:id
+module.exports.editPatch = async (req, res) => {
+    const id = req.params.id;
+  
+    req.body.price = parseInt(req.body.price);
+    req.body.discountPercentage = parseInt(req.body.discountPercentage);
+    req.body.stock = parseInt(req.body.stock);
+    req.body.position = parseInt(req.body.position);
+  
+    if(req.file) {
+      req.body.thumbnail = `/uploads/${req.file.filename}`;
+    }
+  
+    await Product.updateOne({
+      _id: id,
+      deleted: false
+    }, req.body);
+  
+    req.flash("success", "Cập nhật sản phẩm thành công!");
+    res.redirect(`back`);
+}
+
+module.exports.detail = async (req, res) => {
+    const id = req.params.id;
+
+    const product = await Product.findOne({
+        _id: id,
+        deleted: false
+    });
+
+    res.render("admin/pages/products/detail", {
+        pageTitle: `Sản phẩm: ${product.title}`,
+        product: product
+    });
+}
